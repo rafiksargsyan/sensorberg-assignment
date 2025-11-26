@@ -1,0 +1,52 @@
+---
+- name: Install EPEL repo
+  yum:
+    name: epel-release
+    state: present
+
+- name: Install mosquitto package
+  ansible.builtin.dnf:
+    name:
+      - mosquitto
+    state: present
+
+- name: Ensure Mosquitto service is running
+  ansible.builtin.service:
+    name: mosquitto
+    state: started
+    enabled: yes
+
+- name: Create certificate directory
+  ansible.builtin.file:
+    path: /etc/mosquitto/certs
+    state: directory
+    mode: '0755'
+
+- name: Copy TLS certificates (CA, Server Cert, Server Key)
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/mosquitto/certs/{{ item }}"
+    owner: mosquitto
+    group: mosquitto
+    mode: '0600'
+  loop:
+    - ca.crt
+    - server.crt
+    - server.key
+  notify: Restart Mosquitto Service
+
+- name: Deploy Mosquitto configuration file
+  ansible.builtin.template:
+    src: mosquitto.conf.j2
+    dest: /etc/mosquitto/mosquitto.conf
+    owner: root
+    group: mosquitto
+    mode: '0640'
+  notify: Restart Mosquitto Service
+
+- name: Open firewall port (8883 for MQTTS)
+  ansible.posix.firewalld:
+    port: 8883/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes

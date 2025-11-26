@@ -1,0 +1,6 @@
+---
+- name: Provision Mosquitto with TLS and Client Auth
+  hosts: MosquittoHosts
+  become: yes
+  roles:
+    - mosquitto-tls
