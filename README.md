@@ -13,7 +13,7 @@ are openly included in the repository, while in the production environment they 
 stored in some kind of secret store.
 
 The server certificate has been generated for CN ```sensorberg```. To test the connection
-you can use one of the two methods:
+you can use one of the two methods (in both methods run commands from the root of the repo):
 
 - Use the following command (notice ```--insecure``` option), *PEM pass phrase* is ***sensorberg***:
 ```mosquitto_pub -d -h <REMOTE_HOST_IP> -p 8883 -t "test/status" -m "Broker is up" --cafile ./client/ca.crt --cert ./client/client.crt --key ./client/client.key --insecure```
@@ -21,3 +21,5 @@ you can use one of the two methods:
   ```mosquitto_pub -d -h sensorberg -p 8883 -t "test/status" -m "Broker is up" --cafile ./client/ca.crt --cert ./client/client.crt --key ./client/client.key```
 
 ## High availability setup ideas
+To achieve HA we can use bridging to share messages between multiple brokers and place HA proxy
+in front of them
